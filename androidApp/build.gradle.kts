@@ -21,8 +21,14 @@ dependencies {
     implementation("com.github.zerobranch:SwipeLayout:1.3.1")
     implementation("de.charlex.compose:revealswipe:1.0.0-beta05")
     implementation("androidx.compose.material:material:1.0.0-rc02")
+    implementation("com.ernestoyaquello.dragdropswiperecyclerview:drag-drop-swipe-recyclerview:1.1.0")
     implementation("androidx.compose.ui:ui-tooling:1.0.0-rc02")
-    implementation("androidx.compose.ui:ui-tooling:1.0.0-rc02")
+    implementation("androidx.compose.foundation:foundation-layout:1.0.0-rc02")
+    implementation("androidx.compose.foundation:foundation:1.0.0-rc02")
+    implementation("androidx.compose.runtime:runtime::1.0.0-rc02")
+    implementation("androidx.activity:activity-compose:1.0.0-rc02")
+    implementation("androidx.compose.material:material-icons-extended:1.0.0-rc02")
+    implementation("androidx.compose.material:material:1.0.0-rc02")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
     implementation("androidx.activity:activity-compose:1.3.0-rc02")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.0.0-rc02")
@@ -46,6 +52,7 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.0.0-rc02"
