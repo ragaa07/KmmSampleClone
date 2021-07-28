@@ -98,23 +98,10 @@ fun TasksGroup(
     ) {
         val dismissState = remember(tasksGroup, groupIndex) {
             DismissState(DismissValue.Default) {
-                Log.d(TAG, "TaskCard: $it")
-                val newList = mutableListOf<Pair<String, MutableList<String>>>().apply {
-                    tasksGroups.value.forEachIndexed { index, pair ->
-                        add(
-                            Pair(pair.first, mutableListOf<String>().apply {
-                                addAll(pair.second)
-                            })
-                        )
-                    }
-                    Log.d(TAG, "newList size: $size")
-                    removeAt(groupIndex)
-                    Log.d(TAG, "newList size: $size")
-                    Log.d(TAG, "tasksGroups size: ${tasksGroups.value.size}")
-                }
-                tasksGroups.value = newList
-                Log.d(TAG, "tasksGroups size: ${tasksGroups.value.size}")
-                true
+                Toast
+                    .makeText(context, tasksGroup.first, Toast.LENGTH_SHORT)
+                    .show()
+                false
             }
         }
         SwipeToDismiss(
@@ -182,23 +169,10 @@ fun TaskCard(
     val context = LocalContext.current
     val dismissState = remember(name, taskIndexInTasksGroup, groupIndex) {
         DismissState(DismissValue.Default) {
-            Log.d(TAG, "TaskCard: $it")
-            val newList = mutableListOf<Pair<String, MutableList<String>>>().apply {
-                tasksGroups.value.forEachIndexed { index, pair ->
-                    add(
-                        Pair(pair.first, mutableListOf<String>().apply {
-                            addAll(pair.second)
-                        })
-                    )
-                }
-            }
-            Log.d(TAG, "newList size: ${newList[groupIndex].second.size}")
-            newList[groupIndex].second.removeAt(taskIndexInTasksGroup)
-            Log.d(TAG, "newList size: ${newList[groupIndex].second.size}")
-            Log.d(TAG, "old list size: ${tasksGroups.value[groupIndex].second.size}")
-            tasksGroups.value = newList
-            Log.d(TAG, "old list size: ${tasksGroups.value[groupIndex].second.size}")
-            true
+            Toast
+                .makeText(context, "$name, $taskIndexInTasksGroup", Toast.LENGTH_SHORT)
+                .show()
+            false
         }
     }
     SwipeToDismiss(state = dismissState, background = {
