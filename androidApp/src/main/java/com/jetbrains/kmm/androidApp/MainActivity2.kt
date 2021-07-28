@@ -1,6 +1,7 @@
 package com.jetbrains.kmm.androidApp
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,14 +11,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.outlined.Done
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,9 +28,28 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jetbrains.kmm.androidApp.ui.theme.KmmSampleTheme
-import de.charlex.compose.RevealDirection
-import de.charlex.compose.RevealSwipe
+import kotlinx.coroutines.flow.MutableStateFlow
 
+const val TAG: String = "MainActivity2Tag"
+
+// we should never do that and that's only for testing different implementation
+// because the state should be in the view model
+val tasksGroups = MutableStateFlow(
+    listOf(
+        Pair(
+            "group 1",
+            mutableListOf("Do HomeWork", "Go to Gym ", "arrange the bed", "take launch")
+        ),
+        Pair(
+            "group 2",
+            mutableListOf("Do HomeWork", "Go to Gym ", "arrange the bed", "take launch")
+        ),
+        Pair(
+            "group 3",
+            mutableListOf("Do HomeWork", "Go to Gym ", "arrange the bed", "take launch")
+        )
+    )
+)
 
 class MainActivity2 : ComponentActivity() {
     @ExperimentalMaterialApi
@@ -38,19 +57,9 @@ class MainActivity2 : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             KmmSampleTheme {
-                val tasksGroups = listOf(
-                    Pair(
-                        "group 1",
-                        listOf("Do HomeWork", "Go to Gym ", "arrange the bed", "take launch")
-                    ),
-                    Pair(
-                        "group 2",
-                        listOf("Do HomeWork", "Go to Gym ", "arrange the bed", "take launch")
-                    )
-                )
-                TasksGroupsList(tasksGroups)
+                val groups by tasksGroups.collectAsState()
+                TasksGroupsList(groups)
             }
-
         }
     }
 }
@@ -60,39 +69,62 @@ class MainActivity2 : ComponentActivity() {
 fun TasksGroupsList(tasksGroups: List<Pair<String, List<String>>>) {
     val scrollState = rememberLazyListState()
     LazyColumn(state = scrollState) {
-        itemsIndexed(tasksGroups) { _, item ->
-            TasksGroup(tasksGroup = item)
+        itemsIndexed(tasksGroups) { groupIndex, item ->
+            Log.d(TAG, "TasksGroupsList: $groupIndex")
+            TasksGroup(tasksGroup = item, groupIndex = groupIndex)
         }
     }
 }
 
 @ExperimentalMaterialApi
 @Composable
-fun TasksGroup(modifier: Modifier = Modifier, tasksGroup: Pair<String, List<String>>) {
+fun TasksGroup(
+    modifier: Modifier = Modifier,
+    tasksGroup: Pair<String, List<String>>,
+    groupIndex: Int
+) {
+    val context = LocalContext.current
     Card(
         shape = RoundedCornerShape(8.dp),
         modifier = modifier
             .fillMaxWidth()
-            .padding(10.dp),
+            .padding(10.dp)
+            .clickable {
+                Toast
+                    .makeText(context, tasksGroup.first, Toast.LENGTH_SHORT)
+                    .show()
+            },
         elevation = 8.dp
     ) {
-        val context = LocalContext.current
-        Column {
-            RevealSwipe(
-                modifier = Modifier.padding(vertical = 5.dp),
-                directions = setOf(
-                    //        RevealDirection.StartToEnd,
-                    RevealDirection.EndToStart
-                ),
-                hiddenContentStart = {
-                    Icon(
-                        modifier = Modifier.padding(horizontal = 25.dp),
-                        imageVector = Icons.Outlined.Star,
-                        contentDescription = null,
-                        tint = Color.White
-                    )
-                },
-                hiddenContentEnd = {
+        val dismissState = remember(tasksGroup, groupIndex) {
+            DismissState(DismissValue.Default) {
+                Log.d(TAG, "TaskCard: $it")
+                val newList = mutableListOf<Pair<String, MutableList<String>>>().apply {
+                    tasksGroups.value.forEachIndexed { index, pair ->
+                        add(
+                            Pair(pair.first, mutableListOf<String>().apply {
+                                addAll(pair.second)
+                            })
+                        )
+                    }
+                    Log.d(TAG, "newList size: $size")
+                    removeAt(groupIndex)
+                    Log.d(TAG, "newList size: $size")
+                    Log.d(TAG, "tasksGroups size: ${tasksGroups.value.size}")
+                }
+                tasksGroups.value = newList
+                Log.d(TAG, "tasksGroups size: ${tasksGroups.value.size}")
+                true
+            }
+        }
+        SwipeToDismiss(
+            state = dismissState,
+            background = {
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     Icon(
                         modifier = Modifier
                             .padding(horizontal = 25.dp)
@@ -101,12 +133,13 @@ fun TasksGroup(modifier: Modifier = Modifier, tasksGroup: Pair<String, List<Stri
                                     .makeText(context, tasksGroup.first, Toast.LENGTH_SHORT)
                                     .show()
                             },
-                        imageVector = Icons.Outlined.Add,
+                        imageVector = Icons.Outlined.Done,
                         contentDescription = null,
 
                         )
                 }
-            ) {
+            },
+            dismissContent = {
                 Column {
                     Row(
                         horizontalArrangement = Arrangement.Center,
@@ -123,17 +156,18 @@ fun TasksGroup(modifier: Modifier = Modifier, tasksGroup: Pair<String, List<Stri
                         )
                     }
                     Column {
-                        tasksGroup.second.forEachIndexed { index, item ->
-                            TaskCard(name = item, index = index + 1)
+                        tasksGroup.second.forEachIndexed { taskIndexInTasksGroup, item ->
+                            Log.d(TAG, "TasksGroup: $groupIndex")
+                            TaskCard(
+                                name = item,
+                                taskIndexInTasksGroup = taskIndexInTasksGroup,
+                                groupIndex = groupIndex
+                            )
                         }
                     }
-
                 }
-
             }
-
-        }
-
+        )
     }
 }
 
@@ -142,37 +176,61 @@ fun TasksGroup(modifier: Modifier = Modifier, tasksGroup: Pair<String, List<Stri
 fun TaskCard(
     name: String,
     modifier: Modifier = Modifier,
-    index: Int
+    taskIndexInTasksGroup: Int,
+    groupIndex: Int
 ) {
     val context = LocalContext.current
-    RevealSwipe(
-        modifier = Modifier.padding(vertical = 5.dp),
-        directions = setOf(
-            //        RevealDirection.StartToEnd,
-            RevealDirection.EndToStart
-        ),
-        hiddenContentStart = {
-        },
-        hiddenContentEnd = {
+    val dismissState = remember(name, taskIndexInTasksGroup, groupIndex) {
+        DismissState(DismissValue.Default) {
+            Log.d(TAG, "TaskCard: $it")
+            val newList = mutableListOf<Pair<String, MutableList<String>>>().apply {
+                tasksGroups.value.forEachIndexed { index, pair ->
+                    add(
+                        Pair(pair.first, mutableListOf<String>().apply {
+                            addAll(pair.second)
+                        })
+                    )
+                }
+            }
+            Log.d(TAG, "newList size: ${newList[groupIndex].second.size}")
+            newList[groupIndex].second.removeAt(taskIndexInTasksGroup)
+            Log.d(TAG, "newList size: ${newList[groupIndex].second.size}")
+            Log.d(TAG, "old list size: ${tasksGroups.value[groupIndex].second.size}")
+            tasksGroups.value = newList
+            Log.d(TAG, "old list size: ${tasksGroups.value[groupIndex].second.size}")
+            true
+        }
+    }
+    SwipeToDismiss(state = dismissState, background = {
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Icon(
                 modifier = Modifier
-                    .padding(horizontal = 20.dp)
+                    .padding(horizontal = 25.dp)
                     .clickable {
                         Toast
-                            .makeText(context, "$index", Toast.LENGTH_SHORT)
+                            .makeText(context, "$name, $taskIndexInTasksGroup", Toast.LENGTH_SHORT)
                             .show()
                     },
-                imageVector = Icons.Outlined.Add,
+                imageVector = Icons.Outlined.Done,
                 contentDescription = null,
 
                 )
         }
-    ) {
+    }) {
         Card(
             shape = RoundedCornerShape(15.dp),
             modifier = modifier
                 .fillMaxWidth()
-                .padding(10.dp),
+                .padding(10.dp)
+                .clickable {
+                    Toast
+                        .makeText(context, name, Toast.LENGTH_SHORT)
+                        .show()
+                },
             elevation = 5.dp,
             backgroundColor = Color.Gray
 
@@ -200,15 +258,6 @@ fun TaskCard(
 @Preview
 @Composable
 fun TasksGroupsListPreview() {
-    val tasksGroups = listOf(
-        Pair(
-            "group 1",
-            listOf("Do HomeWork", "Go to Gym ", "arrange the bed", "take launch")
-        ),
-        Pair(
-            "group 2",
-            listOf("Do HomeWork", "Go to Gym ", "arrange the bed", "take launch")
-        )
-    )
-    TasksGroupsList(tasksGroups)
+    val groups by tasksGroups.collectAsState()
+    TasksGroupsList(groups)
 }
