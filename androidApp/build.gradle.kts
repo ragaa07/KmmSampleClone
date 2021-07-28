@@ -22,7 +22,12 @@ dependencies {
     implementation("com.github.zerobranch:SwipeLayout:1.3.1")
     implementation("de.charlex.compose:revealswipe:1.0.0-beta05")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
+    //Drag Drop Swipe RecyclerView
+    implementation("com.ernestoyaquello.dragdropswiperecyclerview:drag-drop-swipe-recyclerview:1.1.0")
+
     implementation("androidx.compose.ui:ui:$composeVersion")
+    //Android View Binding
+    implementation("androidx.compose.ui:ui-viewbinding:$composeVersion")
     // Material Design
     implementation("androidx.compose.material:material:$composeVersion")
     // Foundation (Border, Background, Box, Image, Scroll, shapes, animations, etc.)
@@ -56,6 +61,7 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = composeVersion
