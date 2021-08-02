@@ -22,12 +22,23 @@ dependencies {
     implementation("com.github.zerobranch:SwipeLayout:1.3.1")
     implementation("de.charlex.compose:revealswipe:1.0.0-beta05")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
+    //ViewModel
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1")
+    //koin
+    // Koin for Android
+    implementation("io.insert-koin:koin-android:2.2.3")
+    // Koin Android Scope features
+    implementation("io.insert-koin:koin-android-scope:2.2.3")
+// Koin Android ViewModel features
+    implementation("io.insert-koin:koin-android-viewmodel:2.2.3")
+// Koin Android Experimental features
+    implementation("io.insert-koin:koin-android-ext:2.2.3")
+    //corotines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.0")
     //Drag Drop Swipe RecyclerView
     implementation("com.ernestoyaquello.dragdropswiperecyclerview:drag-drop-swipe-recyclerview:1.1.0")
 
     implementation("androidx.compose.ui:ui:$composeVersion")
-    //Android View Binding
-    implementation("androidx.compose.ui:ui-viewbinding:$composeVersion")
     // Material Design
     implementation("androidx.compose.material:material:$composeVersion")
     // Foundation (Border, Background, Box, Image, Scroll, shapes, animations, etc.)
