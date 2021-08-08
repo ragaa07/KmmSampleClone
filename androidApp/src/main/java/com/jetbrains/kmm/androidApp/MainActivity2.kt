@@ -62,7 +62,7 @@ class MainActivity2 : ComponentActivity() {
         setContent {
             KmmSampleTheme {
                 val groups by tasksGroups.collectAsState()
-                TasksGroupsList(groups)
+                TasksGroupsListBothSidesSwiping(groups)
             }
         }
     }
@@ -173,7 +173,7 @@ fun TasksGroupWithoutCard(
         Row(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxWidth()
         ) {
             Text(
@@ -286,8 +286,7 @@ fun TaskCardWithDismissible(
             it != DismissValue.DismissedToEnd
         }
     )
-    DismissibleComposableContainer(dismissState)
-    {
+    DismissibleComposableContainer(dismissState = dismissState) {
         Card(
             shape = RoundedCornerShape(15.dp),
             modifier = modifier
@@ -331,7 +330,7 @@ private fun TasksGroupsListBothSidesSwiping(groups: List<Pair<String, MutableLis
     // will animate to red if you're swiping left or green if you're swiping right. When you let
     // go, the item will animate out of the way if you're swiping left (like deleting an email) or
     // back to its default position if you're swiping right (like marking an email as read/unread).
-    LazyColumn(modifier = Modifier.padding(bottom = 5.dp)) {
+    LazyColumn(modifier = Modifier.padding(top = 5.dp)) {
         itemsIndexed(groups) { groupIndex, tasksGroup ->
             var unread by remember { mutableStateOf(false) }
             val dismissState = rememberDismissState(
@@ -340,12 +339,11 @@ private fun TasksGroupsListBothSidesSwiping(groups: List<Pair<String, MutableLis
                     it != DismissValue.DismissedToEnd
                 }
             )
-            DismissibleComposableContainer(dismissState) {
+            DismissibleComposableContainer(dismissState = dismissState) {
                 Card(
-                    shape = RoundedCornerShape(5.dp),
+                    shape = RoundedCornerShape(1),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(5.dp)
                         .clickable {
                             Toast
                                 .makeText(context, tasksGroup.first, Toast.LENGTH_SHORT)
@@ -365,13 +363,13 @@ private fun TasksGroupsListBothSidesSwiping(groups: List<Pair<String, MutableLis
 @ExperimentalMaterialApi
 @Composable
 private fun DismissibleComposableContainer(
+    modifier: Modifier = Modifier,
     dismissState: DismissState,
     dismissContent: @Composable() (RowScope.() -> Unit)
 ) {
-
     SwipeToDismiss(
         state = dismissState,
-        modifier = Modifier.padding(top = 5.dp, start = 5.dp, end = 5.dp),
+        modifier = modifier.padding(top = 4.dp),
         directions = setOf(DismissDirection.StartToEnd, DismissDirection.EndToStart),
         dismissThresholds = { direction ->
             FractionalThreshold(if (direction == DismissDirection.StartToEnd) 0.25f else 0.25f)
@@ -418,15 +416,15 @@ private fun DismissibleComposableContainer(
 @ExperimentalMaterialApi
 @Preview
 @Composable
-fun TasksGroupsListPreview() {
+fun ListPreview() {
     val groups by tasksGroups.collectAsState()
-    TasksGroupsList(groups)
+    TasksGroupsListBothSidesSwiping(groups)
 }
 
 @ExperimentalMaterialApi
 @Preview
 @Composable
-fun ListPreview() {
+fun TasksGroupsListPreview() {
     val groups by tasksGroups.collectAsState()
-    TasksGroupsListBothSidesSwiping(groups)
+    TasksGroupsList(groups)
 }
