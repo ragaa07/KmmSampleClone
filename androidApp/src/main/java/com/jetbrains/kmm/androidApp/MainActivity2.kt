@@ -7,7 +7,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,13 +19,16 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -260,7 +265,7 @@ private fun DismissibleContainer(
     dismissState: DismissState,
     dismissContent: @Composable() (RowScope.() -> Unit)
 ) {
-    SwipeToDismiss (
+    SwipeToDismiss(
         modifier = modifier,
         state = dismissState,
         directions = setOf(DismissDirection.StartToEnd, DismissDirection.EndToStart),
@@ -317,6 +322,89 @@ private fun DismissibleContainer(
         },
         dismissContent = dismissContent
     )
+}
+
+@Composable
+fun TaskMainCard() {
+    Card(modifier = Modifier, shape = RoundedCornerShape(10.dp)) {
+        Row(
+            modifier = Modifier
+                .height(100.dp)
+                .fillMaxWidth()
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Image(
+                    modifier = Modifier
+                        .padding(horizontal = 4.dp)
+                        .size(40.dp)
+                        .border(1.dp, MaterialTheme.colors.secondary, RoundedCornerShape(5)),
+                    painter = painterResource(id = R.drawable.ic_baseline_done_24),
+                    contentScale = ContentScale.Crop,
+                    contentDescription = null,
+                )
+            }
+            Column(
+                modifier = Modifier
+                    .weight(5f, true)
+                    .fillMaxHeight(),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "msg.author",
+                    style = MaterialTheme.typography.h5,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .paddingFrom(LastBaseline, after = 8.dp) // Space to 1st bubble
+                )
+                Text(
+                    text = "msg.author",
+                    style = MaterialTheme.typography.subtitle1,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .paddingFrom(LastBaseline, after = 8.dp) // Space to 1st bubble
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .weight(0.5f)
+                    .fillMaxHeight(),
+                contentAlignment = Alignment.TopEnd
+            ) {
+                if (false) {
+                    Checkbox(checked = true, onCheckedChange = {})
+                } else {
+                    Icon(
+                        Icons.Default.Menu,
+                        contentDescription = "Localized description",
+                        modifier = Modifier.wrapContentSize()
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun TaskMainCardPreview() {
+    KmmSampleTheme(darkTheme = false) {
+        TaskMainCard()
+    }
+}
+
+@Preview
+@Composable
+fun TaskMainCardDarkPreview() {
+    KmmSampleTheme(darkTheme = true) {
+        TaskMainCard()
+    }
 }
 
 @ExperimentalMaterialApi
