@@ -325,8 +325,11 @@ private fun DismissibleContainer(
 }
 
 @Composable
-fun TaskMainCard() {
-    Card(modifier = Modifier, shape = RoundedCornerShape(10.dp)) {
+fun TaskMainCard(modifier: Modifier= Modifier) {
+    Card(
+        modifier = modifier.border(1.dp, MaterialTheme.colors.secondary, RoundedCornerShape(5)),
+        shape = RoundedCornerShape(10.dp)
+    ) {
         Row(
             modifier = Modifier
                 .height(100.dp)
@@ -395,7 +398,7 @@ fun TaskMainCard() {
 @Composable
 fun TaskMainCardPreview() {
     KmmSampleTheme(darkTheme = false) {
-        TaskMainCard()
+        TaskMainCard(modifier = Modifier.padding(4.dp))
     }
 }
 
